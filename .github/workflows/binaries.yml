@@ -1,0 +1,39 @@
+name: binaries
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  releases-matrix:
+    name: Create binary
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: ["386", amd64, arm64]
+        exclude:
+          - goarch: "386"
+            goos: darwin
+          - goarch: arm64
+            goos: windows
+    steps:
+      - uses: actions/checkout@v2
+        run: |
+          git submodule init 
+          git submodule update
+      - uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 6.0.2
+      - name: "Build web app"
+        run: |
+          cd app 
+          pnpm i 
+          pnpm build
+      - uses: wangyoucao577/go-release-action@v1.18
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          ldflags: "-w -s"
