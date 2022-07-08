@@ -20,14 +20,13 @@ jobs:
             goos: windows
     steps:
       - uses: actions/checkout@v2
-        run: |
-          git submodule init 
-          git submodule update
       - uses: pnpm/action-setup@v2.2.2
         with:
           version: 6.0.2
       - name: "Build web app"
         run: |
+          git submodule init 
+          git submodule update
           cd app 
           pnpm i 
           pnpm build
